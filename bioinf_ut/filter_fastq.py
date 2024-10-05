@@ -1,9 +1,11 @@
-from modules_4main_script import module_for_filter_fastq
+import sys
+sys.path.append('modules_4main_script')
+from modules_4main_script.module_for_filter_fastq import length_bounds, filter
 def filter_fastq(fastq_file, gc_bounds=(0, 100), length_bounds=(0, 2 ** 32), quality_threshold=0):
     result_filtering = {}
     for seq_name, seq, quality in fastq_file.items():
-        result_bounds = module_for_filter_fastq.length_bounds(seq)
-        result_quality = module_for_filter_fastq.quality_threshold(quality)
+        result_bounds = length_bounds(seq)
+        result_quality = filter(quality)
         length_seq = len(seq)
         if isinstance(gc_bounds, int):
             gc_bounds_l, gc_bounds_u = 0, gc_bounds
