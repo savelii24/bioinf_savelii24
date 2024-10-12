@@ -1,9 +1,12 @@
-input = '/bioinf_savelii24/bioinf_ut/example_files/example_fastq.fastq'
-def read_input_fastq(input):
-    with open(input) as file:
+def read_input_fastq(input_path):
+    '''
+    :param input_path: path to fili with fastq-reads
+    :return: reading file
+    '''
+    with open(input_path) as file:
         input_fastq = file.readlines()
     return input_fastq
-def fastq_filter(input_fastq):
+def fastq_dict(input_fastq):
     '''
     :param file: read file from your directory in FASTQ format
     :return: dictionary, where seq_name is a key, quality and seq is a value
@@ -15,8 +18,12 @@ def fastq_filter(input_fastq):
         quality = input_fastq[i + 3].strip()
         output_fastq_dict[seq_name] = (seq, quality)
     return output_fastq_dict
-output_path = '/bioinf_savelii24/bioinf_ut/filtered/result'
-def save_to_file(output_path, output_fastq_dict):
-    with open('/bioinf_savelii24/bioinf_ut/filtered/result', 'w') as file:
+def save_fastq(output_path, output_fastq_dict):
+    '''
+    :param output_path: path to file with output
+    :param output_fastq_dict: fastq reads in dictionary format
+    :return: file with result
+    '''
+    with open(output_path, 'w') as file:
         for key, value in output_fastq_dict.items():
             file.write(f"{key}\n{value[0]}\n{value[1]}\n")
