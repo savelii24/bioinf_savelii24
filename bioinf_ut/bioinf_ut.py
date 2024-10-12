@@ -1,21 +1,27 @@
 import os
-from bioinf_ut.modules_4main_script.module_for_filter_fastq import (
+from modules_4main_script.module_for_filter_fastq import (
     length_bounds_function,
 )
+from modules_4main_script.module_for_filter_fastq import (
+    filter,
+)
 
-from bioinf_ut.modules_4main_script.module_for_filter_fastq import filter
+from modules_4main_script.module_for_fastq_read import (
+    read_input_fastq,
+    fastq_dict,
+    save_fastq,
+)
 
-from bioinf_ut.modules_4main_script.module_for_fastq_read import (read_input_fastq, fastq_dict, save_fastq)
-
-from bioinf_ut.modules_4main_script.module_for_dna_rna_tools import (
+from modules_4main_script.module_for_dna_rna_tools import (
     transcribe,
     reverse,
     complement,
     reverse_complement,
 )
 
+
 def filter_fastq(
-    input_fastq, gc_bounds=(0, 100), length_bounds=(0, 2**32), quality_threshold=0
+    input_fastq: str, gc_bounds=(0, 100), length_bounds=(0, 2**32), quality_threshold=0
 ):
     """
     :param fastq_file: fastq_file is dictionary with DNA-reads where key is sequence name (seq_name)
@@ -25,8 +31,8 @@ def filter_fastq(
     :param quality_threshold: interval for filtering sequences by value of quality
     :return: filtering sequences by three parameters (gc_bounds, length_bounds and quality_threshold)
     """
-    input_fastq_read = read_input_fastq(input_fastq)
-    output_fastq_dict = fastq_dict(input_fastq_read)
+    input_fastq_read = module_for_fastq_read.read_input_fastq(input_fastq)
+    output_fastq_dict = module_for_fastq_read.fastq_dict(input_fastq_read)
     result_filtering = {}
     for seq_name, seq_1 in output_fastq_dict.items():
         seq, quality = seq_1
@@ -48,7 +54,8 @@ def filter_fastq(
             and result_quality >= quality_threshold
         ):
             result_filtering[seq_name] = (seq, quality)
-    return save_fastq(output_path, result_filtering)
+    return module_for_fastq_read.save_fastq(output_path, result_filtering)
+
 
 def run_dna_rna_tools(*seqs):
     """
