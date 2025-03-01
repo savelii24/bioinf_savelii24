@@ -2,73 +2,105 @@ from abc import ABC, abstractmethod
 from Bio import SeqIO
 from Bio.SeqUtils import gc_fraction
 
+
 class BiologicalSequence(ABC):
     def __init__(self, sequence: str, alphabet: set):
         self.sequence = sequence
         self.alphabet = alphabet
         if not self._is_valid():
             raise ValueError(f"Invalid sequence: {sequence}")
+
     def __len__(self):
         return len(self.sequence)
+
     def __getitem__(self, index):
         return self.sequence[index]
+
     def __str__(self):
         return self.sequence
+
     def __repr__(self):
         return f"{self.__class__.__name__}('{self.sequence}')"
+
     def _is_valid(self):
         return set(self.sequence).issubset(self.alphabet)
+
     @abstractmethod
     def description(self):
         pass
 
+
 class NucleicAcidSequence(BiologicalSequence):
     def __init__(self, sequence: str, alphabet: set):
         super().__init__(sequence, alphabet)
+
     def complement(self):
-        transcribe_rule = str.maketrans("AaTtCcGgUu", "TtAaGgCcAa") 
+        transcribe_rule = str.maketrans("AaTtCcGgUu", "TtAaGgCcAa")
         return self.sequence.translate(transcribe_rule)
+
     def reverse(self):
         return self.sequence[::-1]
+
     def reverse_complement(self):
         transcribe_rule = str.maketrans("AaTtCcGgUu", "AaTtCcGgAa")
         return self.sequence.translate(transcribe_rule)[::-1]
+
     def description(self):
         return "Nucleic Acid Sequence"
-    
+
+
 class DNASequence(NucleicAcidSequence):
     DNA_ALPHABET = {"A", "T", "G", "C", "a", "t", "g", "c"}
+
     def __init__(self, sequence: str):
         super().__init__(sequence, self.DNA_ALPHABET)
+
     def transcribe(self):
         transcribe_rule = str.maketrans("AaTtCcGg", "AaUuCcGg")
         return self.sequence.translate(transcribe_rule)
+
     def description(self):
         return "DNA Sequence"
 
+
 class RNASequence(NucleicAcidSequence):
     RNA_ALPHABET = {"A", "U", "G", "C", "a", "u", "g", "c"}
+
     def __init__(self, sequence: str):
         super().__init__(sequence, self.RNA_ALPHABET)
+
     def description(self):
         return "RNA Sequence"
 
+
 class AminoAcidSequence(BiologicalSequence):
     AMINO_ACID_ALPHABET = set("ACDEFGHIKLMNPQRSTVWYacdefghiklmnpqrstvwy")
+
     def __init__(self, sequence: str):
         super().__init__(sequence, self.AMINO_ACID_ALPHABET)
+
     def C_found(self):
-        cysteine_positions = [f"Сysteine (С) posiotion: {i + 1}" for i, aa in enumerate(self.sequence) if aa.upper() == "C"]
+        cysteine_positions = [
+            f"Сysteine (С) posiotion: {i + 1}"
+            for i, aa in enumerate(self.sequence)
+            if aa.upper() == "C"
+        ]
         if cysteine_positions:
             return "\n".join(cysteine_positions)
         else:
             return "No cysteine (C) in transcript"
+
     def description(self):
         return "Amino Acid Sequence"
 
 
 def filter_fastq(
-    input_fastq: str,  output_fastq: str, gc_bounds=(0, 100), length_bounds=(0, 2**32), quality_threshold=0):
+    input_fastq: str,
+    output_fastq: str,
+    gc_bounds=(0, 100),
+    length_bounds=(0, 2**32),
+    quality_threshold=0,
+):
     """
     :param fastq_file: fastq_file is dictionary with DNA-reads where key is sequence name (seq_name)
     and value is nucleotide sequence (seq) and quality of sequence in ASCII-code format (quality)
@@ -81,7 +113,7 @@ def filter_fastq(
     for record in SeqIO.parse(input_fastq, "fastq"):
         seq = record.seq
         quality = record.letter_annotations["phred_quality"]
-        result_bounds = gc_fraction(seq) * 100 
+        result_bounds = gc_fraction(seq) * 100
         result_quality = sum(quality) / len(quality) if len(quality) > 0 else 0
         length_seq = len(seq)
         if isinstance(gc_bounds, tuple):
